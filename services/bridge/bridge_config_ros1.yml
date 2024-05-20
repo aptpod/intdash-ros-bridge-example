@@ -1,0 +1,32 @@
+systems:
+    intdash: { 
+        type: intdash-agent,
+        types-from: ros1,
+        streamer_tx_path: '/var/run/intdash/up-ros-data.fifo',
+        streamer_rx_path: '/var/run/intdash/down-ros-data.fifo'
+    }
+    ros1: {
+        type: ros1
+    }
+
+routes:
+    ros1_to_intdash: { from: ros1, to: intdash }
+    intdash_to_ros1: { from: intdash, to: ros1 }
+
+topics:
+    hello: {
+        type: "std_msgs/String",
+        route: ros1_to_intdash
+    }
+    cube_points: {
+        type: "sensor_msgs/PointCloud2",
+        route: ros1_to_intdash,
+    }
+    compressed_image: {
+        type: "sensor_msgs/CompressedImage",
+        route: ros1_to_intdash,
+    }
+    joy: {
+        type: "sensor_msgs/Joy",
+        route: intdash_to_ros1
+    }

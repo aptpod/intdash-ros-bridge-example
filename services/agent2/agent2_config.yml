@@ -1,0 +1,59 @@
+connection:
+  server_url: https://xxxxxx.intdash.jp
+  project_uuid: 00000000-0000-0000-0000-000000000000
+  edge_uuid: 00000001-0000-0000-0000-000000000000
+  client_secret: x000000000000000000000000000000000000000000000000000000000000001
+transport:
+  protocol: websocket
+upstream:
+- id: up-ros-data
+  enabled: true
+  recover: false
+  persist: true
+  qos: partial
+  flush_policy: immediately
+  flush_interval: 5
+downstream:
+- id: up-ros-data
+  enabled: true
+  dest_ids:
+  - dc-down-ros-data
+  qos: unreliable
+  filters:
+  - src_edge_uuid: 00000002-0000-0000-0000-000000000000
+    data_filters:
+    - type: '#'
+      name: '#'
+device_connectors_upstream:
+- id: dc-up-ros-data
+  data_name_prefix: v1/10/
+  dest_ids:
+  - up-ros-data
+  enabled: true
+  format: iscp-v2-compat
+  ipc:
+    type: fifo
+    path: /var/run/intdash/up-ros-data.fifo
+- id: dc-up-ros-video
+  data_name_prefix: v1/200/
+  dest_ids:
+  - up-ros-data
+  enabled: true
+  format: logger-msg
+  ipc:
+    type: fifo
+    path: /var/run/intdash/up-ros-video.fifo
+device_connectors_downstream:
+- id: dc-down-ros-data
+  data_name_prefix: ""
+  enabled: true
+  format: iscp-v2-compat
+  ipc:
+    type: fifo
+    path: /var/run/intdash/down-ros-data.fifo
+filters_upstream: []
+filters_downstream: []
+deferred_upload:
+  priority: same_as_realtime
+  limit_data_storage: true
+  data_storage_capacity: 102400

@@ -1,0 +1,79 @@
+version: '3.7'
+services:
+  agent_daemon:
+    container_name: agent_daemon
+    image: public.ecr.aws/aptpod/intdash-edge-agent2:${AGENT2_VERSION}
+    healthcheck:
+      test: intdash-agentd ping
+      interval: 1s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    environment:
+    - AGENT_INTDASH_SERVER_URL
+    - AGENT_INTDASH_PROJECT_UUID
+    - AGENT_INTDASH_EDGE_UUID
+    - AGENT_INTDASH_CLIENT_SECRET
+    - AGENT_INTDASH_SRC_EDGE_UUID
+    stop_grace_period: 60s
+    volumes:
+    - shared_volume_agent_run:/var/run/intdash
+    - shared_volume_agent_lib:/var/lib/intdash
+    - ./services/agent2/agent2_config.yml:/tmp/agent.yaml
+    - ./services/agent2/start_agentd.sh:/opt/vm2m/bin/start_agentd.sh
+    command: /opt/vm2m/bin/start_agentd.sh
+
+  agent_streamer:
+    container_name: agent_streamer
+    image: public.ecr.aws/aptpod/intdash-edge-agent2:${AGENT2_VERSION}
+    depends_on:
+      agent_daemon:
+        condition: service_healthy
+    healthcheck:
+      test: pidof intdash-agentctl
+      interval: 1s
+      timeout: 1s
+      retries: 10
+      start_period: 5s
+    stop_grace_period: 30s
+    volumes:
+    - shared_volume_agent_run:/var/run/intdash
+    - shared_volume_agent_lib:/var/lib/intdash
+    command: intdash-agentctl run --address agent_daemon:50051
+
+  intdash_ros_bridge:
+    image: public.ecr.aws/aptpod/intdash-ros-bridge:${ROS1_DISTRO}-${BRIDGE_VERSION}
+    container_name: intdash_ros_bridge
+    depends_on:
+      agent_streamer:
+        condition: service_healthy
+    network_mode: host
+    ipc: host
+    environment:
+      - ROS1_DISTRO
+    volumes:
+    - shared_volume_agent_run:/var/run/intdash
+    - ./services/bridge/bridge_config_ros1.yml:/opt/vm2m/etc/config.yml
+    - ./services/bridge/start_bridge_ros1.sh:/opt/vm2m/bin/start_bridge_ros1.sh
+    command: bash /opt/vm2m/bin/start_bridge_ros1.sh
+
+  ros1_demo:
+    init: true
+    build:
+      context: ./services/ros1_demo/docker
+      args:
+        - ROS1_DISTRO=${ROS1_DISTRO}
+    container_name: ros1_demo
+    depends_on:
+      - intdash_ros_bridge
+    network_mode: host
+    ipc: host
+    environment:
+      - ROS1_DISTRO
+    volumes:
+    - ./services/ros1_demo/start_ros.sh:/opt/vm2m/bin/start_ros.sh
+    command: bash /opt/vm2m/bin/start_ros.sh
+    
+volumes:
+  shared_volume_agent_run: 
+  shared_volume_agent_lib: 
