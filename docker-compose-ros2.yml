@@ -63,6 +63,7 @@ services:
       context: ./services/ros2_demo/docker
       args:
         - ROS2_DISTRO=${ROS2_DISTRO}
+    image: ros2_demo:${ROS2_DISTRO}
     container_name: ros2_demo
     depends_on:
       - intdash_ros_bridge
