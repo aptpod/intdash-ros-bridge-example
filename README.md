@@ -15,7 +15,7 @@ This demonstration provice following upstream and downstream with intdash.
 - Downstream
   - Joy topic (name: /joy)
 
-ROS2 and ROS are supported.
+ROS 2 and ROS are supported.
 
 A data settings file for Data Visualizer (`assets/intdash-ROS-Example.dat`) is provided for your verification.
 
@@ -40,7 +40,7 @@ Run following command.
 docker compose -f docker-compose-(ros2|ros1).yml build
 ```
 
-### Execute ROS2 demo
+### Execute ROS 2 demo
 
 Run following command.
 
@@ -62,29 +62,29 @@ docker compose -f docker-compose-ros1.yml up
 
 If you want to add custom message which are not included in ROS base Docker image, you need to rebuild Docker images with your custom message definition.
 
-Copy the source code of your message package to `msg_src/`, then run follwoing command.
+Copy the source code of your message package to `msg_src/`, then run follwoing commands.
 
 ```
-export PLATFORM=linux/amd64
+export PLATFORM=linux/(amd64|arm64)
 export ROS_DISTRO=(humble|hoxy|noetic|melodic)
 export IMAGE_ARCH=(amd64|arm64v8)
 export VERSION=<version of intdash ROS Bridge>
 export MIX_ROS1_PACKAGES=<packages of your ROS custom message>
-export MIX_ROS2_PACKAGES=<packages of your ROS2 custom message>
-export MIX_ACTION_PACKAGES=<packages of your ROS2 custom action>
-export TEMPLATE_DOCKERFILE=./custom/tmeplate.(ros2|ros1).Dockerfile
-IMAGE_NAME=<your new Docker image name>
+export MIX_ROS2_PACKAGES=<packages of your ROS 2 custom message>
+export MIX_ACTION_PACKAGES=<packages of your ROS 2 custom action>
+export TEMPLATE_DOCKERFILE="custom/template.(ros1|ros2).Dockerfile"
+export IMAGE_NAME=<your new Docker image name>
 
-docker build --platform $(PLATFORM) \
-	--build-arg ROS_DISTRO=$(ROS_DISTRO) \
+docker build --platform ${PLATFORM} \
+	--build-arg ROS_DISTRO=${ROS_DISTRO} \
 	--build-arg BASE_IMAGE=public.ecr.aws/aptpod/intdash-ros-bridge \
-	--build-arg IMAGE_ARCH=$(IMAGE_ARCH) \
-	--build-arg VERSION=$(VERSION) \
-	--build-arg MIX_ROS1_PACKAGES="$(MIX_ROS1_PACKAGES)" \
-	--build-arg MIX_ROS2_PACKAGES="$(MIX_ROS2_PACKAGES)" \
-	--build-arg MIX_ACTION_PACKAGES="$(MIX_ACTION_PACKAGES)" \
-	-f $(TEMPLATE_DOCKERFILE) \
-	-t $(IMAGE_NAME):$(ROS_DISTRO)-$(VERSION)-$(IMAGE_ARCH) .
+	--build-arg IMAGE_ARCH=${IMAGE_ARCH} \
+	--build-arg VERSION=${VERSION} \
+	--build-arg MIX_ROS1_PACKAGES="${MIX_ROS1_PACKAGES}" \
+	--build-arg MIX_ROS2_PACKAGES="${MIX_ROS2_PACKAGES}" \
+	--build-arg MIX_ACTION_PACKAGES="${MIX_ACTION_PACKAGES}" \
+	-f ${TEMPLATE_DOCKERFILE} \
+	-t ${IMAGE_NAME}:${ROS_DISTRO}-${VERSION}-${IMAGE_ARCH} .
 ```
 
 ### Update the agent.yml for intdash Edge Agent2

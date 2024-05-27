@@ -80,7 +80,7 @@ RUN apt-get update && apt-get -y install \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN echo "$VERSION" > /etc/intdash_ros_bridge_version
+COPY --from=builder /etc/intdash_ros_bridge /etc/intdash_ros_bridge
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
