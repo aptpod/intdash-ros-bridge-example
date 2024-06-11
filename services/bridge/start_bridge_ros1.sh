@@ -1,5 +1,8 @@
 #!/bin/bash
 
+cat /etc/intdash_ros_bridge/NOTICE
+cat /etc/intdash_ros_bridge/VERSION
+
 source /opt/ros/$ROS1_DISTRO/setup.bash
 source /opt/epsis_ws/install/setup.bash
 
