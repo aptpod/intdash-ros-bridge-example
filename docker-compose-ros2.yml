@@ -53,7 +53,9 @@ services:
     - shared_volume_agent_run:/var/run/intdash
     - ./services/bridge/bridge_config_ros2.yml:/opt/vm2m/etc/config.yml
     command: |
-      bash -c "source /opt/ros/${ROS2_DISTRO}/setup.bash &&
+      bash -c "cat /etc/intdash_ros_bridge/NOTICE &&
+               cat /etc/intdash_ros_bridge/VERSION &&
+               source /opt/ros/${ROS2_DISTRO}/setup.bash &&
                source /opt/epsis_ws/install/setup.bash &&
                stdbuf -o0 integration-service /opt/vm2m/etc/config.yml"
 
